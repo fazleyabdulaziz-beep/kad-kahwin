@@ -2,9 +2,28 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#314b3b">
-<meta name="description" content="Jemputan Walimatulurus Fazley Abdul Aziz & Roslina binti Abdullah">
-<title>Fazley & Roslina | Walimatulurus</title>
+<meta name="theme-color" content="#294637">
+<meta name="description" content="Create and share a beautiful digital wedding invitation with Wedora.">
+<meta name="keywords" content="jemputan kahwin, jemputan digital, walimatulurus, Fazley, Roslina, 19 Disember 2026">
+<meta name="author" content="Fazley Abdul Aziz & Roslina binti Abdullah">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ms_MY">
+<meta property="og:site_name" content="Wedora">
+<meta property="og:title" content="Digital Wedding Invitation | Wedora">
+<meta property="og:description" content="You are invited to celebrate a special day.">
+<meta property="og:url" content="">
+<meta property="og:image" content="./og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Digital wedding invitation">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Digital Wedding Invitation | Wedora">
+<meta name="twitter:description" content="You are invited to celebrate a special day.">
+<meta name="twitter:image" content="./og-image.png">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="apple-touch-icon" href="./og-image.png">
+<title>Wedora — Digital Wedding Invitation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
@@ -22,7 +41,7 @@
    <p>DENGAN PENUH KESYUKURAN</p>
    <h1>Jemputan<br>Walimatulurus</h1>
    <div class="divider">❧</div>
-   <p>FAZLEY ABDUL AZIZ & ROSLINA</p>
+   <p id="coverNames">JEMPUTAN PENGANTIN</p>
    <button class="btn open-btn" id="openInvite">BUKA JEMPUTAN</button>
   </div>
   <p style="margin-top:20px;color:#53634f;font-size:.7rem;letter-spacing:.12em">SATU IKATAN · SEBUAH DOA · SELAMANYA</p>
@@ -33,9 +52,9 @@
   <div class="hero-card fade">
    <div class="ornament">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
    <p style="letter-spacing:.18em;font-size:.72rem;color:var(--muted)">WALIMATULURUS</p>
-   <h1>Fazley</h1><div class="amp">&</div><h1>Roslina</h1>
-   <p class="intro">Dengan izin Allah SWT, kami menjemput Dato’/Datin/Tuan/Puan/Encik/Cik seisi keluarga ke majlis perkahwinan kami.</p>
-   <div class="date">SABTU · 19 DISEMBER 2026</div>
+   <h1 id="groomName">Pengantin</h1><div class="amp">&</div><h1 id="brideName">Pengantin</h1>
+   <p class="intro" id="openingText">Dengan izin Allah SWT, kami menjemput anda meraikan hari bahagia kami.</p>
+   <div class="date" id="heroDate">TARIKH AKAN DIMAKLUMKAN</div>
    <div class="divider">❧</div>
    <div class="countdown" id="countdown">
     <div class="timebox"><strong id="days">--</strong><span>Hari</span></div><div class="timebox"><strong id="hours">--</strong><span>Jam</span></div><div class="timebox"><strong id="mins">--</strong><span>Minit</span></div><div class="timebox"><strong id="secs">--</strong><span>Saat</span></div>
@@ -47,15 +66,15 @@
   <div class="inner">
    <div class="ornament">Dengan penuh kesyukuran</div><h2>Assalamualaikum<br>Warahmatullahi Wabarakatuh</h2>
    <div class="divider">❧</div>
-   <p style="line-height:1.9;max-width:620px;margin:auto">Dengan penuh rasa kesyukuran ke hadrat Ilahi, kami ingin menjemput tuan/puan sekeluarga untuk bersama-sama meraikan hari bahagia kami. Kehadiran dan doa restu anda amat kami hargai.</p>
+   <p id="welcomeText" style="line-height:1.9;max-width:620px;margin:auto">Dengan penuh rasa kesyukuran ke hadrat Ilahi, kami menjemput anda meraikan hari bahagia kami.</p>
   </div>
  </section>
  <section class="section details" id="details">
   <div class="inner"><div class="ornament">Majlis penuh barakah</div><h2>Butiran Majlis</h2><div class="divider">❧</div>
    <div class="detail-grid">
-    <div class="detail"><div class="ornament">Tarikh</div><h3>19 Disember 2026</h3><p>Sabtu</p></div>
-    <div class="detail"><div class="ornament">Masa</div><h3>Akan dimaklumkan</h3><p>Sila semak semula</p></div>
-    <div class="detail" style="grid-column:1/-1"><div class="ornament">Lokasi</div><h3 id="venueText">Lokasi akan dimaklumkan</h3><p>Maklumat tempat majlis akan dikemaskini kemudian.</p><a id="mapLink" class="btn alt" href="#" target="_blank" rel="noopener" style="display:none;text-decoration:none">BUKA GOOGLE MAPS</a></div>
+    <div class="detail"><div class="ornament">Tarikh</div><h3 id="eventDateText">Tarikh akan dimaklumkan</h3><p id="eventDayText"></p></div>
+    <div class="detail"><div class="ornament">Masa</div><h3 id="eventTimeText">Akan dimaklumkan</h3><p>Masa majlis</p></div>
+    <div class="detail" style="grid-column:1/-1"><div class="ornament">Lokasi</div><h3 id="venueText">Lokasi akan dimaklumkan</h3><p id="venueAddressText">Maklumat tempat majlis akan dikemaskini kemudian.</p><a id="mapLink" class="btn alt" href="#" target="_blank" rel="noopener" style="display:none;text-decoration:none">BUKA GOOGLE MAPS</a></div>
    </div>
   </div>
  </section>
@@ -66,22 +85,22 @@
     <label for="attendance">Pengesahan kehadiran</label><select id="attendance" name="attendance" required><option value="">Pilih jawapan</option><option>Hadir</option><option>Tidak dapat hadir</option></select>
     <label for="guests">Jumlah tetamu (termasuk anda)</label><select id="guests" name="guests"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
     <label for="rsvpNote">Catatan (pilihan)</label><textarea id="rsvpNote" name="note" placeholder="Ucapan ringkas atau maklumat tambahan"></textarea>
-    <button class="btn" type="submit">HANTAR RSVP</button><p class="note" id="rsvpStatus">RSVP akan diaktifkan selepas URL Google Apps Script dimasukkan dalam config.js.</p>
+    <button class="btn" type="submit">HANTAR RSVP</button><p class="note" id="rsvpStatus" aria-live="polite"></p>
    </form>
   </div>
  </section>
  <section class="section" id="gallery">
-  <div class="inner"><div class="ornament">Secebis kenangan</div><h2>Galeri</h2><div class="divider">❧</div><p class="note">Ruang gambar pasangan — boleh digantikan dengan gambar pilihan anda.</p><div class="gallery"><div class="photo">Our Story</div><div class="photo">Together</div><div class="photo">Forever</div></div></div>
+  <div class="inner"><div class="ornament">Secebis kenangan</div><h2>Galeri</h2><div class="divider">❧</div><p class="note">Ruang gambar pasangan — boleh digantikan dengan gambar pilihan anda.</p><div class="gallery" id="galleryGrid"><div class="photo">Our Story</div><div class="photo">Together</div><div class="photo">Forever</div></div></div>
  </section>
  <section class="section">
   <div class="inner"><div class="ornament">Titipan doa</div><h2>Buku Tetamu</h2><div class="divider">❧</div><p>Tinggalkan ucapan dan doa buat kami.</p>
-   <form class="panel" id="wishForm"><label for="wishName">Nama</label><input id="wishName" name="name" required placeholder="Nama anda"><label for="wishText">Ucapan & doa</label><textarea id="wishText" name="message" required placeholder="Semoga bahagia hingga ke syurga..."></textarea><button class="btn" type="submit">KIRIM UCAPAN</button><p class="note" id="wishStatus">Guestbook akan diaktifkan selepas URL Google Apps Script dimasukkan.</p></form>
+   <form class="panel" id="wishForm"><label for="wishName">Nama</label><input id="wishName" name="name" required placeholder="Nama anda"><label for="wishText">Ucapan & doa</label><textarea id="wishText" name="message" required placeholder="Semoga bahagia hingga ke syurga..."></textarea><button class="btn" type="submit">KIRIM UCAPAN</button><p class="note" id="wishStatus" aria-live="polite"></p></form>
    <div id="wishes" class="panel" style="display:none;text-align:center"></div>
   </div>
  </section>
- <footer class="footer"><div class="ornament">Fazley & Roslina</div><h2 class="serif" style="font-size:2.6rem;font-weight:400">Terima Kasih</h2><p style="max-width:520px;margin:10px auto;line-height:1.8">Terima kasih atas kesudian hadir dan menitipkan doa. Semoga Allah SWT membalas segala kebaikan anda.</p><div class="divider">❧</div><small>© 2026 · Walimatulurus Fazley & Roslina</small></footer>
+ <footer class="footer"><div class="ornament" id="footerNames">Wedding Celebration</div><h2 class="serif" style="font-size:2.6rem;font-weight:400">Terima Kasih</h2><p id="closingText" style="max-width:520px;margin:10px auto;line-height:1.8">Terima kasih atas kesudian hadir dan menitipkan doa. Semoga Allah SWT membalas segala kebaikan anda.</p><div class="divider">❧</div><small id="footerCopyright">© Wedora · Digital Wedding Invitation</small></footer>
 </main>
 <button class="music" id="musicBtn" aria-label="Mainkan muzik" title="Mainkan muzik" style="display:none">♫</button>
 <audio id="bgMusic" loop preload="metadata" playsinline></audio>
-<script src="config.js"></script><script src="app.js"></script>
+<script src="saas-config.js"></script><script src="public.js"></script>
 </body></html>
