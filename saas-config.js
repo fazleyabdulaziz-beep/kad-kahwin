@@ -1,1 +1,1 @@
-window.SAAS_CONFIG = { API_URL: 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_EXEC_URL_HERE', PUBLIC_BASE_URL: '' };
+window.SAAS_CONFIG = { API_URL: 'https://script.google.com/macros/s/AKfycbyXuzKwLdkBK-os5NjVE7Y1h0h1JOFOryyrwJmF306uZxkP-wqaCto-zv5jZhURZN4w/exec', PUBLIC_BASE_URL: 'https://fazleyabdulaziz-beep.github.io/kad-kahwin/' };
