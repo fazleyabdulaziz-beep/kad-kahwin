@@ -12,15 +12,55 @@ $("openInvite").addEventListener("click", () => {
   $("site").style.display = "block";
   $("musicBtn").style.display = "grid";
   window.scrollTo(0,0);
+
+  // The opening-button tap is the user's gesture that permits audio playback
+  // on most mobile browsers. Set the local MP3 and call play immediately.
+  const audio = $("bgMusic");
   if (cfg.MUSIC_URL) {
-    $("bgMusic").src = cfg.MUSIC_URL;
-    $("bgMusic").play().then(()=>$("musicBtn").classList.add("playing")).catch(()=>{});
+    if (!audio.src) audio.src = cfg.MUSIC_URL;
+    audio.volume = 0.85;
+    const playAttempt = audio.play();
+    if (playAttempt && typeof playAttempt.then === "function") {
+      playAttempt.then(() => {
+        $("musicBtn").classList.add("playing");
+        $("musicBtn").textContent = "♫";
+        $("musicBtn").title = "Jeda muzik";
+      }).catch(() => {
+        // Some browsers/device settings still block audio. The music button
+        // remains available so the guest can start playback with another tap.
+        $("musicBtn").classList.remove("playing");
+        $("musicBtn").title = "Tekan untuk mainkan muzik";
+      });
+    }
   }
 });
 $("musicBtn").addEventListener("click", async () => {
-  const a=$("bgMusic"); if(!cfg.MUSIC_URL){alert("Masukkan MUSIC_URL dalam config.js dahulu.");return;}
-  if(a.paused){try{await a.play();$("musicBtn").classList.add("playing");}catch(e){alert("Muzik tidak dapat dimainkan.");}}
-  else{a.pause();$("musicBtn").classList.remove("playing");}
+  const audio = $("bgMusic");
+  if (!cfg.MUSIC_URL) {
+    alert("Fail muzik belum dikonfigurasi.");
+    return;
+  }
+  if (audio.paused) {
+    try {
+      if (!audio.src) audio.src = cfg.MUSIC_URL;
+      await audio.play();
+      $("musicBtn").classList.add("playing");
+      $("musicBtn").title = "Jeda muzik";
+    } catch (err) {
+      $("musicBtn").title = "Browser tidak membenarkan audio. Cuba tekan sekali lagi.";
+    }
+  } else {
+    audio.pause();
+    $("musicBtn").classList.remove("playing");
+    $("musicBtn").title = "Mainkan muzik";
+  }
+});
+$("bgMusic").addEventListener("ended", () => {
+  $("musicBtn").classList.remove("playing");
+});
+$("bgMusic").addEventListener("error", () => {
+  $("musicBtn").classList.remove("playing");
+  $("musicBtn").title = "Fail muzik tidak dapat dimuatkan";
 });
 function countdown(){
  const target=new Date("2026-12-19T12:00:00+08:00").getTime(), now=Date.now(), diff=target-now;
