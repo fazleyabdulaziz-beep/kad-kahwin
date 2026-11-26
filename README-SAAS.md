@@ -1,44 +1,33 @@
-# Wedora Studio — Wedding SaaS MVP
+# Jemputan — Digital Invitation Builder
 
-This starter turns the single Fazley & Roslina invitation into a multi-wedding platform MVP.
+GitHub-first multi-wedding invitation platform.
 
 ## Included
-- `admin.html` + `admin.js`: private dashboard, login, create wedding projects, edit details/wording/music URL/gallery URLs/theme, live preview, save draft and publish.
-- `index.html` + `public.js`: public invitation template loaded by slug (`?w=fazley-roslina`), countdown, music, maps, RSVP, guestbook.
-- `Code.gs`: Google Apps Script API with users, sessions, weddings, RSVP and guestbook sheets; SHA-256 password hashing with per-user salt; owner/platform-admin access checks; draft/published content separation.
-- `saas-config.js`: API endpoint and public base URL settings.
+- `index.html` + `admin.js`: root dashboard, login, self-service account registration, show/hide password, multi-wedding management, live preview and publish.
+- `invite.html` + `public.js`: public wedding invitation, five visual design templates, countdown, music, maps, RSVP, guestbook and optional slow auto-scroll after the guest opens the invitation. Auto-scroll pauses when the guest manually interacts.
+- `Code.gs`: Google Apps Script API, user registration/login, per-user wedding access, drafts/publishing, RSVP and guestbook.
+- `saas-config.js`: Apps Script API URL and GitHub Pages public base URL.
 
-## Deployment
-1. Create a new Google Sheet for the platform.
-2. Open Extensions → Apps Script and replace the editor contents with `Code.gs`.
-3. In Apps Script → Project Settings → Script Properties, add:
-   - `PLATFORM_ADMIN_EMAIL` = your admin email
-   - `PLATFORM_ADMIN_PASSWORD` = a strong initial password (at least 10 characters)
-4. Run `setup()` once and authorize it. It creates the database tabs and platform admin.
-5. Run `seedFazleyWedding()` once if you want the Fazley & Roslina starter project pre-created as a draft.
-6. Deploy → New deployment → Web app. Execute as **Me**. Access: **Anyone**. Copy the `/exec` URL.
-7. Paste that URL into `API_URL` in `saas-config.js`.
-8. Set `PUBLIC_BASE_URL` to the public root of your static hosting, e.g. `https://your-site.netlify.app/` (keep trailing slash).
-9. Upload the complete folder to Netlify or GitHub Pages.
-10. Open `/admin.html`, sign in with the platform admin account, edit the Fazley & Roslina project and click **Publish**.
-11. Public invitation URL format: `https://your-site.netlify.app/?w=fazley-roslina`.
+## Setup
+1. Create a Google Sheet and open Extensions → Apps Script. Paste `Code.gs`.
+2. In Script Properties, set `PLATFORM_ADMIN_EMAIL` and `PLATFORM_ADMIN_PASSWORD` (minimum 10 characters).
+3. Run `setup()` once. It creates the required sheets and initial platform admin.
+4. Run `seedFazleyZulaikhaWedding()` once. It renames an existing `fazley-roslina` record to `fazley-zulaikha` when found, otherwise creates a draft wedding. Review it before publishing.
+5. Deploy Apps Script as Web App, Execute as Me, access Anyone.
+6. Put the `/exec` URL into `API_URL` in `saas-config.js`. Keep `PUBLIC_BASE_URL` set to your GitHub Pages root URL.
+7. Push the complete folder to GitHub Pages. Root URL opens the Jemputan dashboard. Public guest links use `invite.html?w=fazley-zulaikha`.
 
-## Creating other weddings
-- Platform admin can create a project and an owner account by entering the owner's email and a temporary password.
-- The owner signs in to `/admin.html`. Owners can create additional projects under their own account by using their existing email (the backend will not create a second account).
-- Each wedding has its own slug and content record. Owners can only access projects assigned to their user ID.
+## Account registration
+New users can register from the dashboard. Passwords must be at least 10 characters. The backend stores salted SHA-256 password hashes, never plaintext passwords. This is a lightweight MVP authentication flow; for a commercial launch, add rate limiting, email verification, password reset, abuse prevention and security review.
 
-## Important MVP limitations
-- Media manager currently accepts direct image URLs and a direct MP3 URL; upload-to-Drive is not wired yet.
-- Guestbook entries are currently published immediately. Add moderation before opening this to the public at scale.
-- RSVP/guestbook data is stored in the shared spreadsheet with a wedding ID column. A dedicated RSVP analytics and moderation screen is a next phase.
-- Static-host query-string pages cannot produce unique server-rendered Open Graph metadata per wedding. WhatsApp may show the generic platform preview. Per-wedding share cards require an edge/server-side metadata route or generated static pages.
-- This is an MVP foundation, not a security audit. Before commercial launch, add rate limiting, stronger session revocation, account recovery, audit logs, privacy/consent controls, abuse prevention, storage quotas and backups. Protect the Apps Script project and spreadsheet; never publish admin credentials in frontend files.
-- Browser autoplay rules still require a guest gesture before audible music can play.
+## Templates
+`classic`, `botanical`, `modern`, `royal`, `minimal`. Select a template in the Design tab. The chosen design is stored with the wedding content and applied on the public invitation.
 
-## Data model
-- `Users`: account identity, password hash + salt, role and active state.
-- `Weddings`: tenant ID, slug, owner ID, draft JSON, published JSON and status.
-- `Sessions`: hashed bearer token and expiry.
-- `RSVP`: wedding ID + guest response.
-- `Guestbook`: wedding ID + guest message + approval flag.
+## Auto-scroll
+Auto-scroll begins after the guest taps **BUKA JEMPUTAN**, at a gentle speed. It stops when the guest uses the wheel, touch, or keyboard, and can be toggled using the on-page control. It is disabled for visitors who prefer reduced motion.
+
+## Important
+- `musicUrl` expects a direct MP3 URL; browser audio playback requires the guest to tap the invitation button.
+- Gallery uses direct image URLs; Drive upload integration is not yet wired.
+- Unique per-wedding WhatsApp Open Graph previews need server-side metadata generation; this static GitHub Pages version uses shared metadata.
+- Do not publish passwords or secret credentials in frontend files.

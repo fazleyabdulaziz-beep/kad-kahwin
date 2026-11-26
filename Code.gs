@@ -27,6 +27,7 @@ function doPost(e){
     const d=JSON.parse((e&&e.postData&&e.postData.contents)||'{}');
     const a=d.action;
     if(a==='login') return out_(login_(d));
+    if(a==='register') return out_(register_(d));
     if(a==='publicWedding') return out_(publicWedding_(d.slug));
     if(a==='rsvp') return out_(saveRsvp_(d));
     if(a==='wish') return out_(saveWish_(d));
@@ -46,6 +47,23 @@ function login_(d){
   const email=String(d.email||'').trim().toLowerCase(), password=String(d.password||'');
   const u=findUser_(email);
   if(!u||!u.active||hash_(password,u.salt)!==u.password_hash) throw new Error('Email atau kata laluan tidak tepat.');
+  return createSession_(u);
+}
+function register_(d){
+  const email=String(d.email||'').trim().toLowerCase();
+  const password=String(d.password||'');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Masukkan alamat email yang sah.');
+  if(password.length<10) throw new Error('Kata laluan mesti sekurang-kurangnya 10 aksara.');
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(10000)) throw new Error('Sistem sedang sibuk. Cuba sekali lagi.');
+  try{
+    if(findUser_(email)) throw new Error('Email ini sudah mempunyai akaun. Sila log masuk.');
+    const salt=Utilities.getUuid(), user={user_id:Utilities.getUuid(),email,password_hash:hash_(password,salt),salt,role:'wedding_owner',active:true};
+    sheet_(T.USERS).appendRow([user.user_id,email,user.password_hash,salt,user.role,new Date(),true]);
+    return createSession_(user);
+  } finally { lock.releaseLock(); }
+}
+function createSession_(u){
   const token=Utilities.getUuid()+Utilities.getUuid();
   sheet_(T.SESSIONS).appendRow([hash_(token,'session'),u.user_id,new Date(Date.now()+SESSION_HOURS*3600000),new Date()]);
   return {ok:true,token,user:{email:u.email,role:u.role}};
@@ -124,8 +142,8 @@ function rowObj_(r,n){return {row:n,wedding_id:r[0],slug:r[1],owner_id:r[2],titl
 function findUser_(email){const rows=sheet_(T.USERS).getDataRange().getValues();for(let i=1;i<rows.length;i++)if(String(rows[i][1]).toLowerCase()===email)return userObj_(rows[i]);return null;}
 function findUserById_(id){const rows=sheet_(T.USERS).getDataRange().getValues();for(let i=1;i<rows.length;i++)if(rows[i][0]===id)return userObj_(rows[i]);return null;}
 function userObj_(r){return {user_id:r[0],email:r[1],password_hash:r[2],salt:r[3],role:r[4],active:r[6]===true};}
-function defaultContent_(title,slug){return {title,slug,groomName:'',brideName:'',eventDate:'2026-12-19',eventTime:'',venueName:'',venueAddress:'',mapsUrl:'',openingText:'Dengan izin Allah SWT, kami menjemput anda meraikan hari bahagia kami.',welcomeText:'Dengan penuh rasa kesyukuran ke hadrat Ilahi, kami ingin menjemput tuan/puan sekeluarga untuk bersama-sama meraikan hari bahagia kami. Kehadiran dan doa restu anda amat kami hargai.',invitationText:'Kehadiran dan doa restu anda amat kami hargai.',musicUrl:'',gallery:[],theme:{forest:'#294637',sage:'#71866c',cream:'#f7f3e9',gold:'#b99b60'}};}
-function validateContent_(c){if(!c||typeof c!=='object')throw new Error('Kandungan tidak sah.');const out=defaultContent_(clean_(c.title,120),slugify_(c.slug||'wedding'));['groomName','brideName','eventDate','eventTime','venueName','venueAddress','mapsUrl','openingText','welcomeText','invitationText','musicUrl'].forEach(k=>out[k]=clean_(c[k],k==='welcomeText'||k==='invitationText'?1200:500));out.gallery=Array.isArray(c.gallery)?c.gallery.slice(0,12).map(x=>clean_(x,1000)):[];if(c.theme&&typeof c.theme==='object')Object.keys(out.theme).forEach(k=>{if(/^#[0-9a-fA-F]{6}$/.test(c.theme[k]||''))out.theme[k]=c.theme[k];});return out;}
+function defaultContent_(title,slug){return {title,slug,design:'classic',groomName:'',brideName:'',eventDate:'',eventTime:'',venueName:'',venueAddress:'',mapsUrl:'',openingText:'Dengan izin Allah SWT, kami menjemput anda meraikan hari bahagia kami.',welcomeText:'Dengan penuh rasa kesyukuran ke hadrat Ilahi, kami ingin menjemput tuan/puan sekeluarga untuk bersama-sama meraikan hari bahagia kami. Kehadiran dan doa restu anda amat kami hargai.',invitationText:'Kehadiran dan doa restu anda amat kami hargai.',musicUrl:'',gallery:[],theme:{forest:'#294637',sage:'#71866c',cream:'#f7f3e9',gold:'#b99b60'}};}
+function validateContent_(c){if(!c||typeof c!=='object')throw new Error('Kandungan tidak sah.');const out=defaultContent_(clean_(c.title,120),slugify_(c.slug||'wedding'));['groomName','brideName','eventDate','eventTime','venueName','venueAddress','mapsUrl','openingText','welcomeText','invitationText','musicUrl'].forEach(k=>out[k]=clean_(c[k],k==='welcomeText'||k==='invitationText'?1200:500));out.design=['classic','botanical','modern','royal','minimal'].includes(c.design)?c.design:'classic';out.gallery=Array.isArray(c.gallery)?c.gallery.slice(0,12).map(x=>clean_(x,1000)):[];if(c.theme&&typeof c.theme==='object')Object.keys(out.theme).forEach(k=>{if(/^#[0-9a-fA-F]{6}$/.test(c.theme[k]||''))out.theme[k]=c.theme[k];});return out;}
 function ensure_(ss,n,h){let s=ss.getSheetByName(n);if(!s)s=ss.insertSheet(n);if(!s.getLastRow())s.appendRow(h);}
 function sheet_(n){const s=SpreadsheetApp.getActive().getSheetByName(n);if(!s)throw new Error('Run setup() first. Missing '+n);return s;}
 function hash_(v,s){const bytes=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(s)+'|'+String(v));return bytes.map(b=>(b+256).toString(16).slice(-2)).join('');}
@@ -134,15 +152,24 @@ function clean_(v,max){return String(v==null?'':v).trim().slice(0,max||500);}
 function publicUrl_(slug){return ScriptApp.getService().getUrl().replace(/\/exec$/,'')+'/exec?slug='+encodeURIComponent(slug);}
 function out_(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);}
 
-function seedFazleyWedding(){
+function seedFazleyZulaikhaWedding(){
   const adminEmail=(PropertiesService.getScriptProperties().getProperty('PLATFORM_ADMIN_EMAIL')||'').trim().toLowerCase();
   const admin=findUser_(adminEmail); if(!admin||admin.role!=='platform_admin')throw new Error('Configure and create platform admin first.');
-  if(findWeddingBySlug_('fazley-roslina'))return 'Fazley & Roslina wedding already exists.';
-  const c=defaultContent_('Fazley & Roslina Wedding','fazley-roslina');
-  c.groomName='Fazley Abdul Aziz';c.brideName='Roslina binti Abdullah';c.eventDate='2026-12-19';c.mapsUrl='https://maps.app.goo.gl/1Kaq9crVWYeptPJC9';c.musicUrl='./wedding-music.mp3';
-  c.openingText='Dengan izin Allah SWT, kami menjemput Dato’/Datin/Tuan/Puan/Encik/Cik seisi keluarga ke majlis perkahwinan kami.';
-  c.welcomeText='Dengan penuh rasa kesyukuran ke hadrat Ilahi, kami ingin menjemput tuan/puan sekeluarga untuk bersama-sama meraikan hari bahagia kami. Kehadiran dan doa restu anda amat kami hargai.';
-  c.invitationText='Terima kasih atas kesudian hadir dan menitipkan doa.';
-  sheet_(T.WEDDINGS).appendRow([Utilities.getUuid(),'fazley-roslina',admin.user_id,c.title,JSON.stringify(c),'','draft',new Date(),new Date()]);
-  return 'Starter wedding created as draft. Sign in with platform admin to edit and publish.';
+  const existing=findWeddingBySlug_('fazley-roslina')||findWeddingBySlug_('fazley-zulaikha');
+  const slug='fazley-zulaikha', title='Fazley & Zulaikha Wedding';
+  if(existing){
+    const sh=sheet_(T.WEDDINGS), draft=JSON.parse(existing.draft_json||'{}');
+    draft.title=title; draft.slug=slug; draft.groomName='Fazley'; draft.brideName='Zulaikha';
+    draft.design=draft.design||'classic';
+    let published=existing.published_json||'';
+    if(published){const pub=JSON.parse(published);pub.title=title;pub.slug=slug;pub.groomName='Fazley';pub.brideName='Zulaikha';pub.design=pub.design||'classic';published=JSON.stringify(pub);}
+    sh.getRange(existing.row,2).setValue(slug); sh.getRange(existing.row,4).setValue(title);
+    sh.getRange(existing.row,5).setValue(JSON.stringify(draft)); sh.getRange(existing.row,6).setValue(published); sh.getRange(existing.row,9).setValue(new Date());
+    return 'Existing wedding renamed to Fazley & Zulaikha. Review the draft and publish when ready.';
+  }
+  const c=defaultContent_(title,slug); c.groomName='Fazley'; c.brideName='Zulaikha'; c.design='classic';
+  sheet_(T.WEDDINGS).appendRow([Utilities.getUuid(),slug,admin.user_id,title,JSON.stringify(c),'','draft',new Date(),new Date()]);
+  return 'Fazley & Zulaikha wedding created as draft. Sign in, review and publish.';
 }
+
+function seedFazleyWedding(){ return seedFazleyZulaikhaWedding(); }
